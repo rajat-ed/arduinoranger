@@ -1,0 +1,1469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Motion Lab</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
+
+:root {
+  --paper: #ffffff;
+  --paper2: #f5f6f8;
+  --line: #e2e5ea;
+  --ink: #1a1d23;
+  --ink-light: #6b7280;
+  --blue: #3b82c4;
+  --orange: #e07b39;
+  --purple: #7c5cbf;
+  --green: #3a9e6a;
+  --red: #d94f4f;
+  --blue-bg: #eef4fb;
+  --orange-bg: #fdf0e6;
+  --purple-bg: #f3effa;
+  --shadow: rgba(0,0,0,0.06);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: #eef0f4;
+  min-height: 100vh;
+  font-family: 'DM Sans', sans-serif;
+  color: var(--ink);
+  padding: 20px;
+}
+
+/* ── PAPER SHEET ── */
+.sheet {
+  max-width: 960px;
+  margin: 0 auto;
+  background: var(--paper);
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+  position: relative;
+  overflow: hidden;
+}
+
+
+
+/* ── HEADER ── */
+.header {
+  padding: 22px 28px 18px 28px;
+  border-bottom: 1px solid var(--line);
+  position: relative;
+}
+
+.header-holes { display: none; }
+.hole { display: none; }
+
+.title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+h1 {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1;
+}
+
+h1 span { color: var(--blue); }
+
+.subtitle {
+  font-size: 0.82rem;
+  color: var(--ink-light);
+  margin-top: 5px;
+  font-weight: 400;
+}
+
+.header-meta {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 20px;
+  letter-spacing: 0.03em;
+}
+
+.badge-blue { background: var(--blue-bg); color: var(--blue); border: 1px solid #b8d4f0; }
+.badge-green { background: #edf7f2; color: var(--green); border: 1px solid #b5e0ca; }
+.badge-orange { background: var(--orange-bg); color: var(--orange); border: 1px solid #f0ceac; }
+
+#statusBadge { transition: all 0.3s; }
+
+/* ── BODY ── */
+.body {
+  padding: 20px 28px 28px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* ── SECTION LABEL ── */
+.section-title {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--ink-light);
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.section-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+  margin-left: 4px;
+}
+
+/* ── CONNECT ROW ── */
+.connect-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.btn {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 8px 18px;
+  border-radius: 8px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.btn:active { transform: scale(0.97); }
+
+.btn-primary {
+  background: var(--blue);
+  color: #fff;
+  border-color: #2a6db0;
+  box-shadow: 0 2px 6px rgba(59,130,196,0.3);
+}
+.btn-primary:hover { background: #2a6db0; }
+
+.btn-danger {
+  background: var(--red);
+  color: #fff;
+  border-color: #b83a3a;
+  box-shadow: 0 2px 6px rgba(217,79,79,0.3);
+}
+.btn-danger:hover { background: #b83a3a; }
+
+.btn-outline {
+  background: var(--paper);
+  color: var(--ink);
+  border-color: var(--line);
+  box-shadow: 0 2px 4px var(--shadow);
+}
+.btn-outline:hover { background: var(--paper2); border-color: #c0b8a8; }
+
+.btn-record {
+  background: var(--paper);
+  color: var(--red);
+  border-color: #f0b0b0;
+  box-shadow: 0 2px 4px var(--shadow);
+}
+.btn-record:hover, .btn-record.active {
+  background: var(--red);
+  color: #fff;
+  border-color: var(--red);
+}
+
+.btn-green {
+  background: var(--green);
+  color: #fff;
+  border-color: #2d8558;
+  box-shadow: 0 2px 6px rgba(58,158,106,0.3);
+}
+.btn-green:hover { background: #2d8558; }
+
+.btn-demo {
+  background: var(--purple-bg);
+  color: var(--purple);
+  border-color: #c5b4e8;
+}
+.btn-demo:hover { background: #e8e0f7; }
+
+/* ── UNIT TOGGLE ── */
+.unit-toggle {
+  display: flex;
+  align-items: center;
+  background: var(--paper2);
+  border: 1.5px solid var(--line);
+  border-radius: 8px;
+  overflow: hidden;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.unit-toggle span {
+  padding: 6px 13px;
+  cursor: pointer;
+  color: var(--ink-light);
+  transition: all 0.15s;
+  user-select: none;
+}
+
+.unit-toggle span.active {
+  background: var(--blue);
+  color: #fff;
+}
+
+.unit-toggle span:not(.active):hover {
+  background: var(--line);
+  color: var(--ink);
+}
+
+/* ── SNAPSHOT BTN ── */
+.btn-snap {
+  background: var(--paper);
+  color: var(--ink);
+  border-color: var(--line);
+  box-shadow: 0 2px 4px var(--shadow);
+}
+.btn-snap:hover { background: var(--paper2); border-color: #c0b8a8; }
+
+.config-inline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: center;
+  font-size: 0.8rem;
+  color: var(--ink-light);
+}
+
+.config-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+select, input[type="number"] {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 4px 8px;
+  border: 1.5px solid var(--line);
+  border-radius: 6px;
+  background: var(--paper);
+  color: var(--ink);
+  width: auto;
+  cursor: pointer;
+}
+
+select:focus, input[type="number"]:focus {
+  outline: none;
+  border-color: var(--blue);
+}
+
+/* ── READINGS STRIP ── */
+.readings-strip {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.reading-card {
+  border-radius: 12px;
+  padding: 14px 16px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.reading-card.disp { background: var(--blue-bg); border: 1.5px solid #b8d4f0; }
+.reading-card.vel  { background: var(--orange-bg); border: 1.5px solid #f0ceac; }
+.reading-card.acc  { background: var(--purple-bg); border: 1.5px solid #c5b4e8; }
+
+.reading-label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.reading-card.disp .reading-label { color: var(--blue); }
+.reading-card.vel  .reading-label { color: var(--orange); }
+.reading-card.acc  .reading-label { color: var(--purple); }
+
+.reading-value {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 2.4rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.reading-card.disp .reading-value { color: var(--blue); }
+.reading-card.vel  .reading-value { color: var(--orange); }
+.reading-card.acc  .reading-value { color: var(--purple); }
+
+.reading-unit {
+  font-size: 0.68rem;
+  color: var(--ink-light);
+  margin-top: 3px;
+}
+
+/* ── GRAPHS ── */
+.chart-block {
+  background: white;
+  border: 1.5px solid var(--line);
+  border-radius: 12px;
+  padding: 14px 16px 10px;
+  box-shadow: 0 2px 8px var(--shadow);
+}
+
+.chart-heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.chart-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.chart-heading-text {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.chart-formula {
+  font-size: 0.7rem;
+  color: var(--ink-light);
+  margin-left: auto;
+  font-style: italic;
+}
+
+.chart-wrap { height: 160px; }
+
+/* ── FULLSCREEN OVERLAY ── */
+.fs-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: #ffffff;
+  flex-direction: column;
+  padding: 0;
+}
+
+.fs-overlay.open { display: flex; }
+
+.fs-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--line);
+  background: var(--paper);
+  flex-shrink: 0;
+}
+
+.fs-title {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.fs-meta {
+  font-size: 0.72rem;
+  color: var(--ink-light);
+  margin-left: 4px;
+}
+
+.fs-close {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 7px 18px;
+  border-radius: 8px;
+  border: 1.5px solid var(--line);
+  background: var(--paper2);
+  color: var(--ink);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.15s;
+}
+
+.fs-close:hover { background: var(--red); color: #fff; border-color: var(--red); }
+
+.fs-chart-area {
+  flex: 1;
+  padding: 20px 24px 16px;
+  position: relative;
+  min-height: 0;
+}
+
+.fs-chart-area canvas { width: 100% !important; height: 100% !important; }
+
+.fs-stats {
+  display: flex;
+  gap: 20px;
+  padding: 12px 24px;
+  border-top: 1px solid var(--line);
+  background: var(--paper2);
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+.fs-stat {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+}
+
+.fs-stat-label { color: var(--ink-light); }
+.fs-stat-value { font-weight: 700; font-family: 'DM Sans', sans-serif; font-size: 1rem; }
+
+/* expand button on chart heading */
+.expand-btn {
+  background: none;
+  border: 1.5px solid var(--line);
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  color: var(--ink-light);
+  margin-left: 6px;
+  transition: all 0.15s;
+  line-height: 1.4;
+}
+.expand-btn:hover { background: var(--blue); color: #fff; border-color: var(--blue); }
+
+/* ── TABS ── */
+.tabs {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.tab {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 6px 16px;
+  border-radius: 8px 8px 0 0;
+  cursor: pointer;
+  border: 1.5px solid var(--line);
+  border-bottom: none;
+  background: var(--paper2);
+  color: var(--ink-light);
+  transition: all 0.15s;
+}
+
+.tab.active {
+  background: white;
+  color: var(--blue);
+  border-color: #b8d4f0;
+  border-bottom-color: white;
+  position: relative;
+  z-index: 2;
+}
+
+.tab-panel {
+  display: none;
+  background: white;
+  border: 1.5px solid var(--line);
+  border-radius: 0 12px 12px 12px;
+  padding: 16px;
+  margin-top: -1px;
+  position: relative;
+  z-index: 1;
+  box-shadow: 0 2px 8px var(--shadow);
+}
+
+.tab-panel.active { display: block; }
+
+/* DATA TABLE */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+}
+
+thead th {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 6px 10px;
+  text-align: left;
+  border-bottom: 1.5px solid var(--line);
+  color: var(--ink-light);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+tbody tr:nth-child(even) { background: var(--paper2); }
+tbody td {
+  padding: 5px 10px;
+  border-bottom: 1px solid #eee;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.78rem;
+}
+
+.td-d { color: var(--blue); font-weight: 700; }
+.td-v { color: var(--orange); font-weight: 700; }
+.td-a { color: var(--purple); font-weight: 700; }
+
+/* PHYSICS CARDS */
+.physics-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.physics-card {
+  border-radius: 10px;
+  padding: 14px;
+  border: 1.5px solid var(--line);
+}
+
+.physics-card.d { border-color: #b8d4f0; background: var(--blue-bg); }
+.physics-card.v { border-color: #f0ceac; background: var(--orange-bg); }
+.physics-card.a { border-color: #c5b4e8; background: var(--purple-bg); }
+
+.physics-icon { font-size: 1.4rem; margin-bottom: 6px; }
+
+.physics-name {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.physics-card.d .physics-name { color: var(--blue); }
+.physics-card.v .physics-name { color: var(--orange); }
+.physics-card.a .physics-name { color: var(--purple); }
+
+.physics-formula {
+  display: inline-block;
+  background: rgba(255,255,255,0.8);
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  margin: 4px 0;
+  font-style: italic;
+}
+
+.physics-card.d .physics-formula { color: var(--blue); }
+.physics-card.v .physics-formula { color: var(--orange); }
+.physics-card.a .physics-formula { color: var(--purple); }
+
+.physics-desc {
+  font-size: 0.73rem;
+  color: var(--ink-light);
+  line-height: 1.5;
+  margin-top: 4px;
+}
+
+/* ARDUINO CODE */
+.code-box {
+  background: #1e1e2e;
+  color: #cdd6f4;
+  border-radius: 10px;
+  padding: 16px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.75rem;
+  line-height: 1.7;
+  overflow-x: auto;
+  white-space: pre;
+  position: relative;
+}
+
+.c-kw { color: #cba6f7; }
+.c-fn { color: #89b4fa; }
+.c-num { color: #fab387; }
+.c-cmt { color: #6c7086; font-style: italic; }
+.c-var { color: #a6e3a1; }
+
+.copy-btn {
+  position: absolute;
+  top: 10px; right: 10px;
+  background: rgba(255,255,255,0.1);
+  color: #cdd6f4;
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 0.7rem;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 700;
+  transition: background 0.15s;
+}
+
+.copy-btn:hover { background: rgba(255,255,255,0.2); }
+
+.pin-note {
+  background: #fff9e6;
+  border: 1.5px solid #f0d890;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 0.78rem;
+  color: #7a6e00;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+/* LOG */
+.log-box {
+  background: var(--paper2);
+  border: 1.5px solid var(--line);
+  border-radius: 10px;
+  padding: 10px 14px;
+  height: 80px;
+  overflow-y: auto;
+  font-size: 0.7rem;
+  color: var(--ink-light);
+  line-height: 1.6;
+}
+
+.log-ok { color: var(--green); }
+.log-err { color: var(--red); }
+.log-info { color: var(--blue); }
+
+/* ── WARN BANNER ── */
+.warn-banner {
+  background: #fff8e6;
+  border: 1.5px solid #f0d890;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 0.78rem;
+  color: #6a5c00;
+  line-height: 1.5;
+}
+
+/* EXPERIMENT IDEAS */
+.ideas-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.idea-card {
+  background: var(--paper2);
+  border: 1.5px solid var(--line);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 0.75rem;
+  color: var(--ink-light);
+  line-height: 1.5;
+}
+
+.idea-card strong {
+  display: block;
+  color: var(--ink);
+  font-size: 0.8rem;
+  margin-bottom: 2px;
+}
+
+@media (max-width: 640px) {
+  .readings-strip { grid-template-columns: 1fr; }
+  .physics-grid { grid-template-columns: 1fr; }
+  .ideas-grid { grid-template-columns: 1fr; }
+  .body { padding-left: 16px; padding-right: 16px; }
+  .header { padding-left: 16px; padding-right: 16px; }
+  h1 { font-size: 1.3rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="sheet">
+  <!-- Binder holes -->
+  <div class="header-holes">
+    <div class="hole"></div>
+    <div class="hole"></div>
+    <div class="hole"></div>
+  </div>
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="title-row">
+      <div>
+        <h1>Motion <span>Lab</span></h1>
+        <div class="subtitle">HC-SR04 · Displacement · Velocity · Acceleration</div>
+      </div>
+      <div class="header-meta">
+        <span class="badge badge-blue">HC-SR04</span>
+        <span class="badge badge-blue">TRIG → D5 &nbsp; ECHO → D6</span>
+        <span class="badge badge-green" id="statusBadge">● Not Connected</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- BODY -->
+  <div class="body">
+
+    <!-- WARN -->
+    <div class="warn-banner" id="warnBanner">
+      Requires <strong>Chrome</strong> or <strong>Edge</strong> (Web Serial API). No Arduino? Try <strong>Demo Mode</strong>.
+    </div>
+
+    <!-- CONNECT SECTION -->
+    <div>
+      <div class="section-title">Connection &amp; Controls</div>
+      <div class="connect-row">
+        <button class="btn btn-primary" id="connectBtn" onclick="toggleConnection()">⚡ Connect Arduino</button>
+        <button class="btn btn-record" id="recordBtn" onclick="toggleRecord()">⏺ Record</button>
+        <button class="btn btn-outline" onclick="clearData()">🗑 Clear</button>
+        <button class="btn btn-green" onclick="exportExcel()">📥 Export to Excel</button>
+        <button class="btn btn-snap" onclick="snapshotGraphs()">📸 Snapshot Graphs</button>
+        <button class="btn btn-demo" onclick="simulateData()">🎲 Demo Mode</button>
+        <div class="unit-toggle" title="Switch display units">
+          <span id="unitCm" class="active" onclick="setUnit('cm')">cm / cm/s</span>
+          <span id="unitM" onclick="setUnit('m')">m / m/s</span>
+        </div>
+      </div>
+
+      <div class="config-inline" style="margin-top:12px;">
+        <div class="config-item">
+          <label for="baudRate">Baud Rate:</label>
+          <select id="baudRate">
+            <option value="9600" selected>9600</option>
+            <option value="115200">115200</option>
+            <option value="57600">57600</option>
+          </select>
+        </div>
+        <div class="config-item">
+          <label for="sampleRate">Sample Rate:</label>
+          <select id="sampleRate">
+            <option value="100">10 Hz</option>
+            <option value="200" selected>5 Hz</option>
+            <option value="500">2 Hz</option>
+            <option value="1000">1 Hz</option>
+          </select>
+        </div>
+        <div class="config-item">
+          <label for="maxPoints">Max Points:</label>
+          <input type="number" id="maxPoints" value="200" min="50" max="1000" style="width:65px;">
+        </div>
+        <div class="config-item">
+          <label for="smoothN">Smoothing:</label>
+          <input type="number" id="smoothN" value="3" min="1" max="10" style="width:55px;">
+        </div>
+        <span id="sampleCountLabel" style="color:var(--blue);font-weight:700;font-size:0.8rem;">0 samples</span>
+      </div>
+    </div>
+
+    <!-- LIVE READINGS -->
+    <div>
+      <div class="section-title">Live Readings</div>
+      <div class="readings-strip">
+        <div class="reading-card disp">
+          <div class="reading-label">Displacement</div>
+          <div class="reading-value" id="dispLive">---</div>
+          <div class="reading-unit" id="dispUnit">cm</div>
+        </div>
+        <div class="reading-card vel">
+          <div class="reading-label">Velocity</div>
+          <div class="reading-value" id="velLive">---</div>
+          <div class="reading-unit" id="velUnit">cm/s</div>
+        </div>
+        <div class="reading-card acc">
+          <div class="reading-label">Acceleration</div>
+          <div class="reading-value" id="accLive">---</div>
+          <div class="reading-unit" id="accUnit">cm/s²</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GRAPHS -->
+    <div>
+      <div class="section-title">Graphs</div>
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <div class="chart-block">
+          <div class="chart-heading">
+            <div class="chart-dot" style="background:var(--blue)"></div>
+            <span class="chart-heading-text">Displacement over Time</span>
+            <span class="chart-formula" id="dispFormula">s = distance measured (cm)</span>
+            <button class="expand-btn" onclick="openFullscreen('disp')" title="Full screen">⛶ Expand</button>
+            <button class="btn btn-snap" style="padding:3px 10px;font-size:0.7rem;margin-left:6px;" onclick="downloadChart('dispChart','displacement')">📸</button>
+          </div>
+          <div class="chart-wrap"><canvas id="dispChart"></canvas></div>
+        </div>
+        <div class="chart-block">
+          <div class="chart-heading">
+            <div class="chart-dot" style="background:var(--orange)"></div>
+            <span class="chart-heading-text">Velocity over Time</span>
+            <span class="chart-formula" id="velFormula">v = Δs ÷ Δt</span>
+            <button class="expand-btn" onclick="openFullscreen('vel')" title="Full screen">⛶ Expand</button>
+            <button class="btn btn-snap" style="padding:3px 10px;font-size:0.7rem;margin-left:6px;" onclick="downloadChart('velChart','velocity')">📸</button>
+          </div>
+          <div class="chart-wrap"><canvas id="velChart"></canvas></div>
+        </div>
+        <div class="chart-block">
+          <div class="chart-heading">
+            <div class="chart-dot" style="background:var(--purple)"></div>
+            <span class="chart-heading-text">Acceleration over Time</span>
+            <span class="chart-formula">a = Δv ÷ Δt</span>
+            <button class="expand-btn" onclick="openFullscreen('acc')" title="Full screen">⛶ Expand</button>
+            <button class="btn btn-snap" style="padding:3px 10px;font-size:0.7rem;margin-left:6px;" onclick="downloadChart('accChart','acceleration')">📸</button>
+          </div>
+          <div class="chart-wrap"><canvas id="accChart"></canvas></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FULLSCREEN OVERLAY -->
+    <div class="fs-overlay" id="fsOverlay">
+      <div class="fs-topbar">
+        <div class="fs-title">
+          <span id="fsDot" style="width:14px;height:14px;border-radius:50%;display:inline-block;flex-shrink:0;"></span>
+          <span id="fsTitle">Graph</span>
+          <span class="fs-meta" id="fsMeta"></span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <button class="btn btn-snap" style="padding:6px 14px;font-size:0.78rem;" onclick="snapshotFs()">📸 Save PNG</button>
+          <button class="fs-close" onclick="closeFullscreen()">✕ Close &nbsp;<kbd style="background:var(--line);border-radius:4px;padding:1px 5px;font-size:0.68rem;">Esc</kbd></button>
+        </div>
+      </div>
+      <div class="fs-chart-area" id="fsChartArea">
+        <canvas id="fsCanvas"></canvas>
+      </div>
+      <div class="fs-stats">
+        <div class="fs-stat"><span class="fs-stat-label">Current:</span><span class="fs-stat-value" id="fsLive">---</span></div>
+        <div class="fs-stat"><span class="fs-stat-label">Min:</span><span class="fs-stat-value" id="fsMin">---</span></div>
+        <div class="fs-stat"><span class="fs-stat-label">Max:</span><span class="fs-stat-value" id="fsMax">---</span></div>
+        <div class="fs-stat"><span class="fs-stat-label">Samples:</span><span class="fs-stat-value" id="fsSamples">0</span></div>
+        <div class="fs-stat" style="margin-left:auto;color:var(--ink-light);font-size:0.72rem;align-self:center;">Live updating while recording</div>
+      </div>
+    </div>
+
+    <!-- TABS -->
+    <div>
+      <div class="section-title">More Info</div>
+      <div class="tabs">
+        <div class="tab active" onclick="switchTab('data')">Data Table</div>
+        <div class="tab" onclick="switchTab('physics')">Physics Guide</div>
+        <div class="tab" onclick="switchTab('code')">Arduino Code</div>
+        <div class="tab" onclick="switchTab('log')">Console Log</div>
+      </div>
+
+      <!-- DATA TABLE -->
+      <div class="tab-panel active" id="tab-data">
+        <div style="overflow-x:auto;max-height:280px;overflow-y:auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Time (s)</th>
+                <th style="color:var(--blue)" id="thDisp">Displacement (cm)</th>
+                <th style="color:var(--orange)" id="thVel">Velocity (cm/s)</th>
+                <th style="color:var(--purple)" id="thAcc">Acceleration (cm/s²)</th>
+              </tr>
+            </thead>
+            <tbody id="dataTableBody">
+              <tr><td colspan="5" style="text-align:center;color:var(--ink-light);padding:20px;">No data yet — press Record and start moving!</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- PHYSICS GUIDE -->
+      <div class="tab-panel" id="tab-physics">
+        <div class="physics-grid">
+          <div class="physics-card d">
+            <div class="physics-icon">📏</div>
+            <div class="physics-name">Displacement</div>
+            <div class="physics-formula">s = d<sub>measured</sub></div>
+            <div class="physics-desc">How far the object is from the sensor. The HC-SR04 sends a sound pulse and measures how long the echo takes to return. Distance = (speed of sound × time) ÷ 2.</div>
+          </div>
+          <div class="physics-card v">
+            <div class="physics-icon">⚡</div>
+            <div class="physics-name">Velocity</div>
+            <div class="physics-formula">v = Δs ÷ Δt</div>
+            <div class="physics-desc">How quickly the displacement is changing. Positive means moving away from the sensor; negative means moving closer. Units: cm/s.</div>
+          </div>
+          <div class="physics-card a">
+            <div class="physics-icon">🚀</div>
+            <div class="physics-name">Acceleration</div>
+            <div class="physics-formula">a = Δv ÷ Δt</div>
+            <div class="physics-desc">How quickly the velocity is changing. This is the second derivative of position. During free-fall, a ≈ 980 cm/s² downward.</div>
+          </div>
+        </div>
+        <div class="ideas-grid">
+          <div class="idea-card"><strong>🏀 Bouncing Ball</strong>Drop a ball above the sensor. See parabolic displacement + near-constant acceleration during free-fall.</div>
+          <div class="idea-card"><strong>🌊 Spring Oscillation</strong>Hang a mass on a spring. Displacement and velocity will be sine waves 90° apart.</div>
+          <div class="idea-card"><strong>🚗 Cart on Ramp</strong>Push a cart down a slope. Observe constant positive acceleration and increasing velocity.</div>
+          <div class="idea-card"><strong>👋 Hand Waving</strong>Wave your hand back and forth. All three graphs update in real time — great for building intuition!</div>
+        </div>
+      </div>
+
+      <!-- ARDUINO CODE -->
+      <div class="tab-panel" id="tab-code">
+        <div class="pin-note">
+          ⚠️ Wire the sensor: <strong>TRIG → Pin 5</strong> &nbsp;|&nbsp; <strong>ECHO → Pin 6</strong> &nbsp;|&nbsp; VCC → 5V &nbsp;|&nbsp; GND → GND
+        </div>
+        <div class="code-box" id="codeBox">
+<button class="copy-btn" onclick="copyCode()">Copy</button><span class="c-cmt">// Motion Lab — HC-SR04 Ultrasonic Sensor
+// TRIG → Pin 5   |   ECHO → Pin 6
+// Upload this sketch, then connect in the app.</span>
+
+<span class="c-kw">#define</span> <span class="c-var">TRIG_PIN</span> <span class="c-num">5</span>
+<span class="c-kw">#define</span> <span class="c-var">ECHO_PIN</span> <span class="c-num">6</span>
+
+<span class="c-kw">const int</span> <span class="c-var">INTERVAL_MS</span> = <span class="c-num">200</span>;   <span class="c-cmt">// 5 Hz — change to match app setting</span>
+<span class="c-kw">unsigned long</span> <span class="c-var">lastTime</span> = <span class="c-num">0</span>;
+
+<span class="c-fn">void</span> <span class="c-fn">setup</span>() {
+  Serial.<span class="c-fn">begin</span>(<span class="c-num">9600</span>);
+  <span class="c-fn">pinMode</span>(<span class="c-var">TRIG_PIN</span>, OUTPUT);
+  <span class="c-fn">pinMode</span>(<span class="c-var">ECHO_PIN</span>, INPUT);
+}
+
+<span class="c-fn">void</span> <span class="c-fn">loop</span>() {
+  <span class="c-kw">unsigned long</span> now = <span class="c-fn">millis</span>();
+  <span class="c-kw">if</span> (now - <span class="c-var">lastTime</span> >= <span class="c-var">INTERVAL_MS</span>) {
+    <span class="c-var">lastTime</span> = now;
+
+    <span class="c-cmt">// 1. Fire a 10µs pulse on TRIG</span>
+    <span class="c-fn">digitalWrite</span>(<span class="c-var">TRIG_PIN</span>, LOW);
+    <span class="c-fn">delayMicroseconds</span>(<span class="c-num">2</span>);
+    <span class="c-fn">digitalWrite</span>(<span class="c-var">TRIG_PIN</span>, HIGH);
+    <span class="c-fn">delayMicroseconds</span>(<span class="c-num">10</span>);
+    <span class="c-fn">digitalWrite</span>(<span class="c-var">TRIG_PIN</span>, LOW);
+
+    <span class="c-cmt">// 2. Measure echo duration (max 30ms timeout)</span>
+    <span class="c-kw">long</span> <span class="c-var">duration</span> = <span class="c-fn">pulseIn</span>(<span class="c-var">ECHO_PIN</span>, HIGH, <span class="c-num">30000</span>);
+
+    <span class="c-cmt">// 3. Convert to cm and send over Serial</span>
+    <span class="c-kw">if</span> (<span class="c-var">duration</span> > <span class="c-num">0</span>) {
+      <span class="c-kw">float</span> <span class="c-var">cm</span> = (<span class="c-var">duration</span> * <span class="c-num">0.0343</span>) / <span class="c-num">2.0</span>;
+      <span class="c-kw">if</span> (<span class="c-var">cm</span> >= <span class="c-num">2</span> && <span class="c-var">cm</span> <= <span class="c-num">400</span>) {
+        Serial.<span class="c-fn">println</span>(<span class="c-var">cm</span>, <span class="c-num">2</span>);
+      }
+    }
+  }
+}</div>
+      </div>
+
+      <!-- LOG -->
+      <div class="tab-panel" id="tab-log">
+        <div class="log-box" id="logArea"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+// ── STATE ──────────────────────────────────────────────────────────────────
+let port = null, reader = null, isConnected = false, isRecording = false;
+let simInterval = null;
+let data = { times: [], disp: [], vel: [], acc: [], _t0: null };
+let lastDisp = null, lastVel = null, lastTime = null;
+let dispBuffer = [];
+let currentUnit = 'cm'; // 'cm' or 'm'
+
+// ── UNIT HELPERS ───────────────────────────────────────────────────────────
+function toDisplay(cmVal, type) {
+  // type: 'disp' (cm→m /1), 'vel' (cm/s→m/s /100), 'acc' (cm/s²→m/s² /100)
+  if (currentUnit === 'm') {
+    if (type === 'disp') return cmVal / 100;
+    if (type === 'vel')  return cmVal / 100;
+    if (type === 'acc')  return cmVal / 100;
+  }
+  return cmVal;
+}
+
+function unitLabel(type) {
+  if (currentUnit === 'm') {
+    if (type === 'disp') return 'm';
+    if (type === 'vel')  return 'm/s';
+    if (type === 'acc')  return 'm/s²';
+  }
+  if (type === 'disp') return 'cm';
+  if (type === 'vel')  return 'cm/s';
+  if (type === 'acc')  return 'cm/s²';
+}
+
+function setUnit(u) {
+  currentUnit = u;
+  document.getElementById('unitCm').className = u === 'cm' ? 'active' : '';
+  document.getElementById('unitM').className  = u === 'm'  ? 'active' : '';
+
+  // Update reading card subtitles
+  document.getElementById('dispUnit').textContent = u === 'm' ? 'm' : 'cm';
+  document.getElementById('velUnit').textContent  = u === 'm' ? 'm/s' : 'cm/s';
+  document.getElementById('accUnit').textContent  = u === 'm' ? 'm/s²' : 'cm/s²';
+
+  // Update formula hints
+  document.getElementById('dispFormula').textContent = u === 'm' ? 's = distance measured (m)' : 's = distance measured (cm)';
+  document.getElementById('velFormula').textContent  = u === 'm' ? 'v = Δs ÷ Δt  (m/s)' : 'v = Δs ÷ Δt  (cm/s)';
+
+  // Update table headers
+  document.getElementById('thDisp').textContent = `Displacement (${unitLabel('disp')})`;
+  document.getElementById('thVel').textContent  = `Velocity (${unitLabel('vel')})`;
+  document.getElementById('thAcc').textContent  = `Acceleration (${unitLabel('acc')})`;
+
+  // Refresh charts and table with new unit
+  updateCharts(); updateTable();
+  log(`Units switched to ${u === 'm' ? 'SI (metres)' : 'centimetres'}`, 'info');
+}
+
+// ── FULLSCREEN ─────────────────────────────────────────────────────────────
+let fsChart = null;
+let fsKey = null;
+
+const fsConfig = {
+  disp: { title: 'Displacement over Time', color: '#3b82c4', dot: '#3b82c4', formula: 'v = Δs ÷ Δt', liveId: 'dispLive', dataKey: 'disp', type: 'disp' },
+  vel:  { title: 'Velocity over Time',     color: '#e07b39', dot: '#e07b39', formula: 'a = Δv ÷ Δt', liveId: 'velLive',  dataKey: 'vel',  type: 'vel'  },
+  acc:  { title: 'Acceleration over Time', color: '#7c5cbf', dot: '#7c5cbf', formula: 's = Δs/Δt²',  liveId: 'accLive',  dataKey: 'acc',  type: 'acc'  }
+};
+
+function openFullscreen(key) {
+  fsKey = key;
+  const cfg = fsConfig[key];
+
+  document.getElementById('fsTitle').textContent = cfg.title;
+  document.getElementById('fsDot').style.background = cfg.dot;
+  document.getElementById('fsMeta').textContent = `(${unitLabel(cfg.type)})`;
+  document.getElementById('fsOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+
+  // Build fullscreen chart
+  if (fsChart) { fsChart.destroy(); fsChart = null; }
+  const canvas = document.getElementById('fsCanvas');
+  // Size canvas to fill area
+  const area = document.getElementById('fsChartArea');
+  canvas.width = area.clientWidth;
+  canvas.height = area.clientHeight;
+
+  fsChart = new Chart(canvas, {
+    type: 'line',
+    data: {
+      labels: data.times.map(t => parseFloat(t).toFixed(1)),
+      datasets: [{
+        data: data[cfg.dataKey].map(v => toDisplay(v, cfg.type)),
+        borderColor: cfg.color,
+        borderWidth: 2.5,
+        pointRadius: 0,
+        tension: 0.35,
+        fill: { target: 'origin', above: cfg.color + '22', below: cfg.color + '22' }
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: { duration: 0 },
+      plugins: { legend: { display: false } },
+      scales: {
+        x: {
+          grid: { color: '#eef0f4' },
+          ticks: { color: '#9aa0ab', font: { family: 'DM Sans', size: 12 }, maxTicksLimit: 10 },
+          title: { display: true, text: 'Time (s)', color: '#9aa0ab', font: { family: 'DM Sans', size: 12 } }
+        },
+        y: {
+          grid: { color: '#eef0f4' },
+          ticks: { color: '#9aa0ab', font: { family: 'DM Sans', size: 12 }, maxTicksLimit: 8 },
+          title: { display: true, text: unitLabel(cfg.type), color: '#9aa0ab', font: { family: 'DM Sans', size: 12 } }
+        }
+      }
+    }
+  });
+  updateFsStats();
+}
+
+function updateFsChart() {
+  if (!fsChart || !fsKey) return;
+  const cfg = fsConfig[fsKey];
+  const labels = data.times.map(t => parseFloat(t).toFixed(1));
+  const vals = data[cfg.dataKey].map(v => toDisplay(v, cfg.type));
+  fsChart.data.labels = labels;
+  fsChart.data.datasets[0].data = vals;
+  fsChart.update('none');
+  updateFsStats();
+}
+
+function updateFsStats() {
+  if (!fsKey) return;
+  const cfg = fsConfig[fsKey];
+  const vals = data[cfg.dataKey].map(v => toDisplay(v, cfg.type));
+  document.getElementById('fsSamples').textContent = vals.length;
+  if (vals.length) {
+    document.getElementById('fsMin').textContent = Math.min(...vals).toFixed(3) + ' ' + unitLabel(cfg.type);
+    document.getElementById('fsMax').textContent = Math.max(...vals).toFixed(3) + ' ' + unitLabel(cfg.type);
+    document.getElementById('fsLive').textContent = document.getElementById(cfg.liveId).textContent + ' ' + unitLabel(cfg.type);
+  } else {
+    document.getElementById('fsMin').textContent = '---';
+    document.getElementById('fsMax').textContent = '---';
+    document.getElementById('fsLive').textContent = '---';
+  }
+}
+
+function closeFullscreen() {
+  document.getElementById('fsOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+  if (fsChart) { fsChart.destroy(); fsChart = null; }
+  fsKey = null;
+}
+
+function snapshotFs() {
+  if (!fsKey) return;
+  downloadChart('fsCanvas', fsConfig[fsKey].title.toLowerCase().replace(/ /g,'-'));
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeFullscreen(); });
+
+// ── SNAPSHOT ───────────────────────────────────────────────────────────────
+function downloadChart(canvasId, name) {
+  const canvas = document.getElementById(canvasId);
+  // Draw onto a white-background offscreen canvas so PNG isn't transparent
+  const off = document.createElement('canvas');
+  off.width = canvas.width; off.height = canvas.height;
+  const ctx = off.getContext('2d');
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, off.width, off.height);
+  ctx.drawImage(canvas, 0, 0);
+  const a = document.createElement('a');
+  a.href = off.toDataURL('image/png');
+  a.download = `motion-lab-${name}-${new Date().toISOString().slice(0,19).replace(/:/g,'-')}.png`;
+  a.click();
+  log(`Snapshot saved: ${name}.png`, 'ok');
+}
+
+function snapshotGraphs() {
+  ['dispChart','velChart','accChart'].forEach((id, i) => {
+    const names = ['displacement','velocity','acceleration'];
+    setTimeout(() => downloadChart(id, names[i]), i * 150);
+  });
+}
+const chartBase = (color) => ({
+  responsive: true, maintainAspectRatio: false,
+  animation: { duration: 0 },
+  plugins: { legend: { display: false } },
+  scales: {
+    x: {
+      grid: { color: '#eef0f4' },
+      ticks: { color: '#9aa0ab', font: { family: 'DM Sans', size: 10 }, maxTicksLimit: 8 },
+      title: { display: true, text: 'Time (s)', color: '#9aa0ab', font: { family: 'DM Sans', size: 10 } }
+    },
+    y: {
+      grid: { color: '#eef0f4' },
+      ticks: { color: '#9aa0ab', font: { family: 'DM Sans', size: 10 }, maxTicksLimit: 5 }
+    }
+  }
+});
+
+function makeChart(id, color) {
+  return new Chart(document.getElementById(id), {
+    type: 'line',
+    data: {
+      labels: [],
+      datasets: [{
+        data: [],
+        borderColor: color,
+        borderWidth: 2,
+        pointRadius: 0,
+        tension: 0.35,
+        fill: { target: 'origin', above: color + '22', below: color + '22' }
+      }]
+    },
+    options: chartBase(color)
+  });
+}
+
+const charts = {
+  disp: makeChart('dispChart', '#3b82c4'),
+  vel:  makeChart('velChart',  '#e07b39'),
+  acc:  makeChart('accChart',  '#7c5cbf')
+};
+
+// ── LOG ────────────────────────────────────────────────────────────────────
+function log(msg, type = 'info') {
+  const area = document.getElementById('logArea');
+  const t = new Date().toTimeString().slice(0, 8);
+  area.innerHTML += `<span class="log-${type}">[${t}] ${msg}</span>\n`;
+  area.scrollTop = area.scrollHeight;
+}
+
+// ── CONNECTION ─────────────────────────────────────────────────────────────
+async function toggleConnection() {
+  if (isConnected) { await disconnect(); return; }
+  if (!('serial' in navigator)) {
+    log('Web Serial not supported. Please use Chrome or Edge.', 'err');
+    alert('Please open this page in Google Chrome or Microsoft Edge to use Web Serial.');
+    return;
+  }
+  try {
+    port = await navigator.serial.requestPort();
+    const baud = parseInt(document.getElementById('baudRate').value);
+    await port.open({ baudRate: baud });
+    isConnected = true;
+    setConnected(true);
+    log(`Connected at ${baud} baud`, 'ok');
+    readSerial();
+  } catch (e) {
+    log('Connection failed: ' + e.message, 'err');
+  }
+}
+
+async function disconnect() {
+  isConnected = false; setConnected(false);
+  try { if (reader) { await reader.cancel(); reader = null; } } catch {}
+  try { if (port) { await port.close(); port = null; } } catch {}
+  log('Disconnected', 'info');
+}
+
+function setConnected(on) {
+  const badge = document.getElementById('statusBadge');
+  badge.textContent = on ? '● Connected' : '● Not Connected';
+  badge.className = 'badge ' + (on ? 'badge-green' : 'badge-orange');
+  const btn = document.getElementById('connectBtn');
+  btn.textContent = on ? '✕ Disconnect' : '⚡ Connect Arduino';
+  btn.className = 'btn ' + (on ? 'btn-danger' : 'btn-primary');
+  if (!on && simInterval) { clearInterval(simInterval); simInterval = null; }
+}
+
+// ── SERIAL READ ────────────────────────────────────────────────────────────
+async function readSerial() {
+  const decoder = new TextDecoderStream();
+  port.readable.pipeTo(decoder.writable);
+  reader = decoder.readable.getReader();
+  let buf = '';
+  try {
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      buf += value;
+      const lines = buf.split('\n');
+      buf = lines.pop();
+      for (const line of lines) {
+        const cm = parseFloat(line.trim());
+        if (!isNaN(cm) && cm >= 2 && cm <= 400) processReading(cm);
+      }
+    }
+  } catch (e) {
+    if (isConnected) log('Read error: ' + e.message, 'err');
+  }
+}
+
+// ── PROCESS READING ────────────────────────────────────────────────────────
+function processReading(cm) {
+  const now = performance.now() / 1000;
+  const n = parseInt(document.getElementById('smoothN').value) || 3;
+  dispBuffer.push(cm);
+  if (dispBuffer.length > n) dispBuffer.shift();
+  const smoothed = dispBuffer.reduce((a, b) => a + b, 0) / dispBuffer.length;
+
+  let v = 0, a = 0;
+  if (lastDisp !== null && lastTime !== null) {
+    const dt = now - lastTime;
+    if (dt > 0) {
+      v = (smoothed - lastDisp) / dt;
+      if (lastVel !== null) a = (v - lastVel) / dt;
+    }
+  }
+  lastTime = now; lastDisp = smoothed; lastVel = v;
+
+  const dDec = currentUnit === 'm' ? 3 : 1;
+  const vDec = currentUnit === 'm' ? 4 : 2;
+  const aDec = currentUnit === 'm' ? 4 : 2;
+  document.getElementById('dispLive').textContent = toDisplay(smoothed,'disp').toFixed(dDec);
+  document.getElementById('velLive').textContent  = toDisplay(v,'vel').toFixed(vDec);
+  document.getElementById('accLive').textContent  = toDisplay(a,'acc').toFixed(aDec);
+
+  if (isRecording) {
+    if (!data._t0) data._t0 = now;
+    const tRel = (now - data._t0).toFixed(3);
+    data.times.push(tRel);
+    data.disp.push(smoothed);
+    data.vel.push(v);
+    data.acc.push(a);
+
+    const max = parseInt(document.getElementById('maxPoints').value) || 200;
+    while (data.times.length > max) {
+      data.times.shift(); data.disp.shift(); data.vel.shift(); data.acc.shift();
+    }
+
+    updateCharts(); updateTable();
+    document.getElementById('sampleCountLabel').textContent = data.times.length + ' samples';
+    if (fsKey) updateFsChart();
+  }
+}
+
+// ── UPDATE CHARTS ──────────────────────────────────────────────────────────
+function updateCharts() {
+  const labels = data.times.map(t => parseFloat(t).toFixed(1));
+  [
+    ['disp', data.disp, 'disp'],
+    ['vel',  data.vel,  'vel'],
+    ['acc',  data.acc,  'acc']
+  ].forEach(([k, d, type]) => {
+    charts[k].data.labels = labels;
+    charts[k].data.datasets[0].data = d.map(v => toDisplay(v, type));
+    charts[k].update('none');
+  });
+}
+
+// ── UPDATE TABLE ───────────────────────────────────────────────────────────
+function updateTable() {
+  const tbody = document.getElementById('dataTableBody');
+  if (!data.times.length) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--ink-light);padding:20px;">No data yet — press Record and start moving!</td></tr>';
+    return;
+  }
+  const start = Math.max(0, data.times.length - 300);
+  let html = '';
+  for (let i = data.times.length - 1; i >= start; i--) {
+    html += `<tr>
+      <td style="color:var(--ink-light)">${i + 1}</td>
+      <td>${data.times[i]}</td>
+      <td class="td-d">${toDisplay(data.disp[i],'disp').toFixed(currentUnit==='m'?4:2)}</td>
+      <td class="td-v">${toDisplay(data.vel[i],'vel').toFixed(currentUnit==='m'?5:3)}</td>
+      <td class="td-a">${toDisplay(data.acc[i],'acc').toFixed(currentUnit==='m'?5:4)}</td>
+    </tr>`;
+  }
+  tbody.innerHTML = html;
+}
+
+// ── CONTROLS ───────────────────────────────────────────────────────────────
+function toggleRecord() {
+  isRecording = !isRecording;
+  const btn = document.getElementById('recordBtn');
+  if (isRecording) {
+    data._t0 = null;
+    btn.textContent = '⏹ Stop Recording';
+    btn.classList.add('active');
+    log('Recording started', 'ok');
+  } else {
+    btn.textContent = '⏺ Record';
+    btn.classList.remove('active');
+    log(`Recording stopped — ${data.times.length} samples captured`, 'info');
+  }
+}
+
+function clearData() {
+  data = { times: [], disp: [], vel: [], acc: [], _t0: null };
+  dispBuffer = []; lastDisp = null; lastVel = null; lastTime = null;
+  updateCharts(); updateTable();
+  document.getElementById('sampleCountLabel').textContent = '0 samples';
+  document.getElementById('dispLive').textContent = '---';
+  document.getElementById('velLive').textContent = '---';
+  document.getElementById('accLive').textContent = '---';
+  log('Data cleared', 'info');
+}
+
+function exportExcel() {
+  if (!data.times.length) { log('Nothing to export yet!', 'err'); return; }
+  const u = currentUnit;
+  const dU = unitLabel('disp'), vU = unitLabel('vel'), aU = unitLabel('acc');
+  let csv = `Sample,Time (s),Displacement (${dU}),Velocity (${vU}),Acceleration (${aU})\n`;
+  for (let i = 0; i < data.times.length; i++) {
+    csv += `${i+1},${data.times[i]},${toDisplay(data.disp[i],'disp').toFixed(6)},${toDisplay(data.vel[i],'vel').toFixed(6)},${toDisplay(data.acc[i],'acc').toFixed(8)}\n`;
+  }
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+  a.download = `motion-lab-${new Date().toISOString().slice(0, 10)}.csv`;
+  a.click();
+  log(`Exported ${data.times.length} rows (${u})`, 'ok');
+}
+
+// ── DEMO MODE ──────────────────────────────────────────────────────────────
+function simulateData() {
+  if (simInterval) {
+    clearInterval(simInterval); simInterval = null;
+    setConnected(false); log('Demo mode stopped', 'info'); return;
+  }
+  if (!isRecording) toggleRecord();
+  setConnected(true); isConnected = true;
+  let t = 0;
+  const rate = parseInt(document.getElementById('sampleRate').value) || 200;
+  simInterval = setInterval(() => {
+    t += rate / 1000;
+    const cm = 60 + 25 * Math.sin(2 * Math.PI * 0.4 * t)
+               + 8 * Math.sin(2 * Math.PI * 1.2 * t)
+               + (Math.random() - 0.5) * 2;
+    processReading(Math.max(2, Math.min(400, cm)));
+  }, rate);
+  log('Demo mode running — simulated oscillation', 'ok');
+}
+
+// ── TABS ───────────────────────────────────────────────────────────────────
+function switchTab(id) {
+  const ids = ['data', 'physics', 'code', 'log'];
+  document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', ids[i] === id));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === 'tab-' + id));
+}
+
+// ── COPY CODE ──────────────────────────────────────────────────────────────
+function copyCode() {
+  const code = `// Motion Lab — HC-SR04 Ultrasonic Sensor
+// TRIG -> Pin 5  |  ECHO -> Pin 6
+#define TRIG_PIN 5
+#define ECHO_PIN 6
+const int INTERVAL_MS = 200;
+unsigned long lastTime = 0;
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(TRIG_PIN, OUTPUT);
+  pinMode(ECHO_PIN, INPUT);
+}
+
+void loop() {
+  unsigned long now = millis();
+  if (now - lastTime >= INTERVAL_MS) {
+    lastTime = now;
+    digitalWrite(TRIG_PIN, LOW);
+    delayMicroseconds(2);
+    digitalWrite(TRIG_PIN, HIGH);
+    delayMicroseconds(10);
+    digitalWrite(TRIG_PIN, LOW);
+    long duration = pulseIn(ECHO_PIN, HIGH, 30000);
+    if (duration > 0) {
+      float cm = (duration * 0.0343) / 2.0;
+      if (cm >= 2 && cm <= 400) Serial.println(cm, 2);
+    }
+  }
+}`;
+  navigator.clipboard.writeText(code).then(() => log('Arduino code copied to clipboard!', 'ok'));
+}
+
+log('Motion Lab ready. Connect your Arduino or try Demo Mode!', 'ok');
+</script>
+</body>
+</html>
